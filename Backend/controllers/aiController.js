@@ -72,6 +72,7 @@ export const askAILibrarian = catchAsyncErrors(async (req, res, next) => {
 // 2. PERSONALIZED RECOMMENDATIONS PROXY WITH REALTIME STATE
 // ======================================================
 export const getUserRecommendations = catchAsyncErrors(async (req, res, next) => {
+  const { initialLoad } = req.body;
   const userId = req.user._id;
 
   // 1. Fetch user's favorite genres & reading history populated from MongoDB
@@ -110,10 +111,53 @@ export const getUserRecommendations = catchAsyncErrors(async (req, res, next) =>
     want_to_read
   };
 
+  // SHORT-CIRCUIT CACHING GATE: If initial load request, return historic data directly
+  if (initialLoad === true) {
+    const cachedBooks = [];
+    const bookIds = user.lastRecommendedBooks || [];
+    if (bookIds && Array.isArray(bookIds)) {
+      for (const id of bookIds) {
+        const mongoBook = await resolveBookFromRagId(id);
+        if (mongoBook) {
+          const isIssuedToUser = user.borrowedBooks.some(
+            b => b.bookId.toString() === mongoBook._id.toString() && b.returned === false
+          );
+          
+          cachedBooks.push({
+            rag_id: id,
+            _id: mongoBook._id,
+            title: mongoBook.title,
+            author: mongoBook.author,
+            category: mongoBook.category,
+            description: mongoBook.description,
+            quantity: mongoBook.quantity,
+            availability: mongoBook.availability,
+            rentPrice: mongoBook.rentPrice,
+            purchasePrice: mongoBook.purchasePrice,
+            frontCover: mongoBook.frontCover,
+            is_issued: isIssuedToUser,
+          });
+        }
+      }
+    }
+
+    return res.status(200).json({
+      success: true,
+      recommendation: user.lastRecommendation || "",
+      recommended_books: cachedBooks,
+      profile_metadata: payload
+    });
+  }
+
   try {
     // 4. Hit FastAPI recommendations endpoint
     const response = await axios.post(`${FASTAPI_URL}/api/ai/recommend`, payload);
     const { recommendation, recommended_book_ids } = response.data;
+
+    // Save fresh recommendations to user profile cache
+    user.lastRecommendation = recommendation;
+    user.lastRecommendedBooks = recommended_book_ids || [];
+    await user.save();
 
     // 5. Intercept book IDs and enrich them with real-time MongoDB status
     const recommendedBooks = [];
@@ -214,5 +258,33 @@ export const updateUserPreferences = catchAsyncErrors(async (req, res, next) => 
     success: true,
     message: "Preferences updated successfully.",
     favorite_genres: updatedUser.favorite_genres
+  });
+});
+
+// ======================================================
+// 5. FETCH ALL USER SHELVES WITH POPULATED BOOKS
+// ======================================================
+export const getUserShelves = catchAsyncErrors(async (req, res, next) => {
+  const userId = req.user._id;
+
+  const shelves = await UserShelf.find({ user: userId }).populate("book");
+
+  const currently_reading = shelves
+    .filter((s) => s.status === "CURRENTLY_READING" && s.book)
+    .map((s) => s.book);
+
+  const want_to_read = shelves
+    .filter((s) => s.status === "WANT_TO_READ" && s.book)
+    .map((s) => s.book);
+
+  const completed = shelves
+    .filter((s) => s.status === "COMPLETED" && s.book)
+    .map((s) => s.book);
+
+  res.status(200).json({
+    success: true,
+    currently_reading,
+    want_to_read,
+    completed,
   });
 });

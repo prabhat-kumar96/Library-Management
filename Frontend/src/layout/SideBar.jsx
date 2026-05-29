@@ -14,7 +14,8 @@ import {
   X,
   BookMarked,
   GitPullRequest, // 👈 Added for Borrow Requests
-  Sparkles
+  Sparkles,
+  BookOpen
 } from "lucide-react";
 
 // Redux Actions
@@ -118,6 +119,17 @@ const SideBar = ({ isSideBarOpen, setIsSideBarOpen, selectedComponent, setSelect
           >
             <Sparkles className="w-5 h-5 text-indigo-400 animate-pulse" /> 
             <span>Smart AI Librarian</span>
+          </button>
+
+          <button
+            onClick={() => {
+              setSelectedComponent("MyBookshelf");
+              setIsSideBarOpen(false);
+            }}
+            className={getNavItemClass("MyBookshelf")}
+          >
+            <BookOpen className="w-5 h-5 text-blue-400" /> 
+            <span>My Bookshelf</span>
           </button>
 
           {/* ========================================== */}

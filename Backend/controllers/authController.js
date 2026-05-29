@@ -13,7 +13,7 @@ import { getSystemErrorMap } from "util";
 
 export const register = catchAsyncErrors(async(req,res , next ) => {
     try {
-        const {name ,email, password} = req.body;
+        const {name ,email, password, favorite_genres} = req.body;
         if(!name || !email || !password){
             return next(new ErrorHandeler("Please enter all fields.", 400));
         }
@@ -43,7 +43,8 @@ export const register = catchAsyncErrors(async(req,res , next ) => {
         const user = await User.create({
             name,
             email,
-            password: hashedPassword
+            password: hashedPassword,
+            favorite_genres: favorite_genres || []
         })
         const verificationCode = await user.generateVerificationCode();
         await user.save();

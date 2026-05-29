@@ -172,20 +172,18 @@ def generate_llm_response(system_prompt: str, user_prompt: str) -> str:
 
     # 1. Try local Ollama instance
     try:
-        url = "http://localhost:11434/api/chat"
+        url = "http://localhost:11434/api/generate"
+        prompt_context = f"System Guidelines:\n{system_prompt}\n\nUser Input Context:\n{user_prompt}"
         payload = {
-            "model": "llama3",
-            "messages": [
-                {"role": "system", "content": system_prompt},
-                {"role": "user", "content": user_prompt}
-            ],
+            "model": "llama3:latest",  # 👈 Ensure this matches your 'ollama list' output exactly!
+            "prompt": prompt_context,
             "stream": False
         }
-        print("🤖 Attempting connection to Ollama (llama3) at http://localhost:11434...")
+        print("🤖 Attempting connection to Ollama (llama3:latest) at http://localhost:11434/api/generate...")
         response = requests.post(url, json=payload, timeout=8)
         if response.status_code == 200:
             print("✅ Success: Response returned from local Ollama!")
-            return response.json()["message"]["content"]
+            return response.json()["response"]
     except Exception as e:
         print(f"⚠️ Ollama connection failed or timed out: {e}")
         print("🔄 Initiating automatic fallback to Gemini API...")

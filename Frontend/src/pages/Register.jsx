@@ -9,6 +9,18 @@ const Register = () => {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [favoriteGenres, setFavoriteGenres] = useState([]);
+
+  const availableGenres = [
+    "Sci-Fi", 
+    "Mathematics", 
+    "Action", 
+    "Software Engineering", 
+    "Distributed Systems", 
+    "Algorithms", 
+    "Fiction", 
+    "History"
+  ];
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -17,6 +29,14 @@ const Register = () => {
     (state) => state.auth
   );
 
+  const handleGenreToggle = (genre) => {
+    if (favoriteGenres.includes(genre)) {
+      setFavoriteGenres(favoriteGenres.filter((g) => g !== genre));
+    } else {
+      setFavoriteGenres([...favoriteGenres, genre]);
+    }
+  };
+
   const handleRegister = (e) => {
     e.preventDefault();
     // Matches your backend check: password length < 8 || password length > 16
@@ -24,7 +44,11 @@ const Register = () => {
       toast.error("Password must be between 8 and 16 characters.");
       return;
     }
-    dispatch(register({ name, email, password }));
+    if (favoriteGenres.length < 2) {
+      toast.error("Please select at least 2 favorite genres.");
+      return;
+    }
+    dispatch(register({ name, email, password, favorite_genres: favoriteGenres }));
   };
 
   useEffect(() => {
@@ -85,6 +109,32 @@ const Register = () => {
                 className="w-full px-4 py-3 mt-1 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 transition-colors"
                 placeholder="8 - 16 characters"
               />
+            </div>
+            
+            {/* Dynamic Multi-Select Genre Chip Onboarding */}
+            <div className="pt-2">
+              <label className="block text-sm font-bold text-gray-800 mb-2">
+                Choose Favorite Genres <span className="text-xs font-normal text-gray-500">(Select at least 2)</span>
+              </label>
+              <div className="flex flex-wrap gap-2">
+                {availableGenres.map((genre) => {
+                  const isSelected = favoriteGenres.includes(genre);
+                  return (
+                    <button
+                      type="button"
+                      key={genre}
+                      onClick={() => handleGenreToggle(genre)}
+                      className={`px-3 py-1.5 rounded-full text-xs font-semibold transition-all border duration-150 ${
+                        isSelected
+                          ? "bg-blue-600 text-white border-blue-600 shadow-sm"
+                          : "bg-gray-50 text-gray-600 border-gray-200 hover:bg-gray-100"
+                      }`}
+                    >
+                      {genre} {isSelected ? "✓" : "+"}
+                    </button>
+                  );
+                })}
+              </div>
             </div>
           </div>
 

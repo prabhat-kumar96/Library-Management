@@ -90,6 +90,14 @@ const userSchema = new mongoose.Schema({
     verificationCodeExpire: Date,
     resetPasswordToken: String,
     resetPasswordTokenExpire: Date,
+    lastRecommendation: {
+        type: String,
+        default: ""
+    },
+    lastRecommendedBooks: {
+        type: [String],
+        default: []
+    },
  },
  {
     timestamps: true

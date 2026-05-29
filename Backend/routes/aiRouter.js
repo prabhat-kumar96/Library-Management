@@ -4,7 +4,8 @@ import {
   askAILibrarian, 
   getUserRecommendations, 
   tagBookOnShelf, 
-  updateUserPreferences 
+  updateUserPreferences,
+  getUserShelves
 } from "../controllers/aiController.js";
 
 const router = express.Router();
@@ -20,5 +21,8 @@ router.post("/shelf", isAuthenticated, tagBookOnShelf);
 
 // Update user preferences route
 router.put("/preferences", isAuthenticated, updateUserPreferences);
+
+// Fetch user populated bookshelves route
+router.get("/shelves", isAuthenticated, getUserShelves);
 
 export default router;
