@@ -13,7 +13,8 @@ import {
   LogOut, 
   X,
   BookMarked,
-  GitPullRequest // 👈 Added for Borrow Requests
+  GitPullRequest, // 👈 Added for Borrow Requests
+  Sparkles
 } from "lucide-react";
 
 // Redux Actions
@@ -106,6 +107,17 @@ const SideBar = ({ isSideBarOpen, setIsSideBarOpen, selectedComponent, setSelect
           >
             <Library className="w-5 h-5" /> 
             <span>Catalog</span>
+          </button>
+
+          <button
+            onClick={() => {
+              setSelectedComponent("AILibrarian");
+              setIsSideBarOpen(false);
+            }}
+            className={getNavItemClass("AILibrarian")}
+          >
+            <Sparkles className="w-5 h-5 text-indigo-400 animate-pulse" /> 
+            <span>Smart AI Librarian</span>
           </button>
 
           {/* ========================================== */}

@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { X, BookOpen, ShoppingCart, Clock } from "lucide-react";
 import { createRequest, clearErrors, clearMessage } from "../store/slices/requestSlice"; 
 import { toast } from "react-toastify";
+import axios from 'axios';
 
 const BookDetailsPopup = ({ book, onClose }) => {
   const dispatch = useDispatch();
@@ -15,7 +16,36 @@ const BookDetailsPopup = ({ book, onClose }) => {
     if (!user) {
       return toast.error("Please login to request a book");
     }
-    dispatch(createRequest(book._id, type));
+    if (type === 'Purchase') {
+      // Create a Stripe Checkout session and redirect
+      (async () => {
+        try {
+          const payload = {
+            customer_email: user.email,
+            items: [
+              {
+                title: book.title,
+                amount: Math.round((book.purchasePrice || 0) * 100),
+                currency: 'inr',
+                quantity: 1,
+                bookId: book._id,
+              }
+            ]
+          };
+          const res = await axios.post(`${import.meta.env.VITE_API_BASE || ''}/api/v1/payment/create-checkout-session`, payload, { withCredentials: true });
+          if (res.data?.url) {
+            window.location.href = res.data.url;
+          } else {
+            toast.error('Unable to create checkout session');
+          }
+        } catch (err) {
+          console.error(err);
+          toast.error(err?.response?.data?.message || err.message || 'Checkout failed');
+        }
+      })();
+    } else {
+      dispatch(createRequest(book._id, type));
+    }
   };
 
   useEffect(() => {

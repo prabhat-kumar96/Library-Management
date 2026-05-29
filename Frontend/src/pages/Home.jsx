@@ -14,6 +14,7 @@ import MyBorrowedBooks from "../components/MyBorrowedBooks";
 import BookManagement from "../components/BookManagement";
 import Users from "../components/Users";
 import BorrowRequests from "../components/borrowRequest";
+import AILibrarian from "../components/AILibrarian";
 
 const Home = () => {
   const [isSideBarOpen, setIsSideBarOpen] = useState(false);
@@ -50,6 +51,8 @@ const Home = () => {
       
       case "BorrowRequests":
       return <BorrowRequests />;
+      case "AILibrarian":
+        return <AILibrarian />;
       default:
         return user?.role === "Admin" ? <AdminDashboard /> : <UserDashboard />;
     }

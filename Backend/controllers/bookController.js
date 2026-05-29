@@ -4,6 +4,7 @@ import ErrorHandeler from "../middlewares/errorMiddlewares.js";
 import cloudinary from "cloudinary";
 import fs from "fs";
 import { extractTextFromPDF, generateBookDescription, generateEmbedding } from "../services/geminiServices.js";
+import redisClient from "../utils/redisClient.js";
 
 // ==============================
 // 1. ADD BOOK (AI Powered)
@@ -96,6 +97,21 @@ export const addBook = catchAsyncErrors(async (req, res, next) => {
   }
 
   const book = await Book.create(bookData);
+
+  // ⚡ Real-Time Vector Store Sync via Redis Pub/Sub (Non-blocking)
+  try {
+    const syncPayload = {
+      book_id: book._id.toString(),
+      title: book.title,
+      author: book.author,
+      genres: book.category,
+      summary: book.description
+    };
+    redisClient.publish("library_book_sync", JSON.stringify(syncPayload));
+    console.log(`⚡ [Redis Pub] Event published for book: ${book.title}`);
+  } catch (redisError) {
+    console.error("🚨 [Redis Pub] Failed to publish sync event:", redisError.message);
+  }
 
   res.status(201).json({
     success: true,

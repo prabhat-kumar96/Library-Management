@@ -67,6 +67,17 @@ const userSchema = new mongoose.Schema({
         validate: [arrayLimit, 'You can only have up to 5 preferences'],
         default: []
     },
+    // 📚 RAG Personalized Recommendation Fields
+    favorite_genres: {
+        type: [String],
+        default: []
+    },
+    reading_history: [
+        {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "Book"
+        }
+    ],
     avatar: {
         public_id: String,
         url: String
