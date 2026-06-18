@@ -39,6 +39,15 @@ export const register = catchAsyncErrors(async(req,res , next ) => {
                 new ErrorHandeler("Password must be between 8 and 16 characters.",400)
             )   
         }
+        if (!/[A-Z]/.test(password)) {
+            return next(new ErrorHandeler("invalid password must contain atleast oneUppercase", 400));
+        }
+        if (!/[a-z]/.test(password)) {
+            return next(new ErrorHandeler("invalid password must contain atleast oneLowercase", 400));
+        }
+        if (!/[\W_]/.test(password)) {
+            return next(new ErrorHandeler("invalid password must contain atleast oneSpecialCharacter", 400));
+        }
         const hashedPassword = await bcrypt.hash(password , 10);
         const user = await User.create({
             name,
@@ -196,6 +205,15 @@ export const resetPassword = catchAsyncErrors(async(req , res , next) => {
     if(req.body.password.length < 8 || req.body.password.length > 16){
         return next(new ErrorHandeler("Password must be between 8 and 16 characters.", 400));
     }
+    if (!/[A-Z]/.test(req.body.password)) {
+        return next(new ErrorHandeler("invalid password must contain atleast oneUppercase", 400));
+    }
+    if (!/[a-z]/.test(req.body.password)) {
+        return next(new ErrorHandeler("invalid password must contain atleast oneLowercase", 400));
+    }
+    if (!/[\W_]/.test(req.body.password)) {
+        return next(new ErrorHandeler("invalid password must contain atleast oneSpecialCharacter", 400));
+    }
     const hashedPassword = await bcrypt.hash(req.body.password, 10);
     user.password = hashedPassword;
     user.resetPasswordToken = undefined;
@@ -219,6 +237,15 @@ export const updatePassword = catchAsyncErrors(async(req, res, next) => {
         if(newPassword.length < 8 
             ||newPassword.length > 16){
             return next(new ErrorHandeler("Password must be between 8 and 16 characters.",400));
+        }
+        if (!/[A-Z]/.test(newPassword)) {
+            return next(new ErrorHandeler("invalid password must contain atleast oneUppercase", 400));
+        }
+        if (!/[a-z]/.test(newPassword)) {
+            return next(new ErrorHandeler("invalid password must contain atleast oneLowercase", 400));
+        }
+        if (!/[\W_]/.test(newPassword)) {
+            return next(new ErrorHandeler("invalid password must contain atleast oneSpecialCharacter", 400));
         }
         if(newPassword !== confirmNewPassword){
             return next(new ErrorHandeler("New password and confirm password do not match.", 400));

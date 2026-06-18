@@ -27,8 +27,17 @@ export const registerNewAdmin = catchAsyncErrors(async(req , res , next) =>{
     if(isRegistered) {
         return next(new ErrorHandeler("User already registered." , 400));
     }
-    if(password.lengthength < 8 || password.length > 16) {
+    if(password.length < 8 || password.length > 16) {
         return next(new ErrorHandeler("Password must be between 8 and 16 characters long", 400));
+    }
+    if (!/[A-Z]/.test(password)) {
+        return next(new ErrorHandeler("invalid password must contain atleast oneUppercase", 400));
+    }
+    if (!/[a-z]/.test(password)) {
+        return next(new ErrorHandeler("invalid password must contain atleast oneLowercase", 400));
+    }
+    if (!/[\W_]/.test(password)) {
+        return next(new ErrorHandeler("invalid password must contain atleast oneSpecialCharacter", 400));
     }
 
     const {avatar} = req.files;

@@ -44,6 +44,18 @@ const Register = () => {
       toast.error("Password must be between 8 and 16 characters.");
       return;
     }
+    if (!/[A-Z]/.test(password)) {
+      toast.error("invalid password must contain atleast oneUppercase");
+      return;
+    }
+    if (!/[a-z]/.test(password)) {
+      toast.error("invalid password must contain atleast oneLowercase");
+      return;
+    }
+    if (!/[\W_]/.test(password)) {
+      toast.error("invalid password must contain atleast oneSpecialCharacter");
+      return;
+    }
     if (favoriteGenres.length < 2) {
       toast.error("Please select at least 2 favorite genres.");
       return;
@@ -107,7 +119,7 @@ const Register = () => {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 className="w-full px-4 py-3 mt-1 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 transition-colors"
-                placeholder="8 - 16 characters"
+                placeholder="8-16 chars, must contain one uppercase and one special character"
               />
             </div>
             

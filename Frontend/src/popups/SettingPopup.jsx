@@ -43,6 +43,18 @@ const SettingPopup = ({ isOpen, onClose }) => {
       toast.error("New password must be between 8 and 16 characters.");
       return;
     }
+    if (!/[A-Z]/.test(newPassword)) {
+      toast.error("invalid password must contain atleast oneUppercase");
+      return;
+    }
+    if (!/[a-z]/.test(newPassword)) {
+      toast.error("invalid password must contain atleast oneLowercase");
+      return;
+    }
+    if (!/[\W_]/.test(newPassword)) {
+      toast.error("invalid password must contain atleast oneSpecialCharacter");
+      return;
+    }
 
     const data = { currentPassword, newPassword, confirmNewPassword };
     dispatch(updatePassword(data));
@@ -69,7 +81,7 @@ const SettingPopup = ({ isOpen, onClose }) => {
           <div className="bg-blue-50 p-4 rounded-lg border border-blue-100 flex items-start gap-3 mb-4">
             <KeyRound className="text-blue-500 mt-0.5 flex-shrink-0" size={18} />
             <p className="text-sm text-blue-800">
-              Ensure your new password is secure and between 8 to 16 characters long.
+              Ensure your new password is secure, between 8 to 16 characters long, and contains at least one uppercase, one lowercase, and one special character.
             </p>
           </div>
 
@@ -93,7 +105,7 @@ const SettingPopup = ({ isOpen, onClose }) => {
               value={newPassword}
               onChange={(e) => setNewPassword(e.target.value)}
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
-              placeholder="8 - 16 characters"
+              placeholder="8-16 chars, must contain one uppercase and one special character"
             />
           </div>
 
