@@ -19,6 +19,8 @@ import aiRouter from './routes/aiRouter.js';
 import { notifyUsers } from './services/notifyUsers.js';
 import { removeUnverifiedAccounts } from './services/removeUnverifiedAccounts.js';
 
+import { stripeWebhookHandler } from './controllers/paymentController.js';
+
 config({path: './config/config.env'});
 
 export const app = express();
@@ -30,6 +32,11 @@ app.use(cors({
     credentials: true,
 }));
 app.use(cookieParser());
+
+// Stripe Webhooks (must be defined BEFORE express.json() to get the raw body)
+app.post("/api/v1/payment/webhook", express.raw({ type: 'application/json' }), stripeWebhookHandler);
+app.post("/api/payments/webhook", express.raw({ type: 'application/json' }), stripeWebhookHandler);
+
 app.use(express.json());
 app.use(express.urlencoded({extended: true}));
 
@@ -45,6 +52,8 @@ app.use("/api/v1/borrow", borrowRouter);
 app.use("/api/v1/user", userRouter);
 app.use("/api/v1/request", requestRouter);
 app.use("/api/v1/payment", paymentRouter);
+app.use("/api/payments", paymentRouter);
+
 
 // 🤖 AI Librarian & Recommendation Engine Routers
 app.use("/api/ai", aiRouter);

@@ -1,0 +1,49 @@
+version: '3.8'
+
+services:
+  # 💳 Core Node.js System
+  backend:
+    build: ./Backend
+    ports:
+      - "4000:4000"
+    volumes:
+      - ./Backend:/app
+      - /app/node_modules
+    environment:
+      - PORT=4000
+      - REDIS_URL=redis://redis:6379
+    env_file:
+      - ./Backend/config/config.env
+    depends_on:
+      - redis
+
+  # 🎨 React UI Dashboard
+  frontend:
+    build: ./Frontend
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./Frontend:/app
+      - /app/node_modules
+    env_file:
+      - ./Frontend/.env
+    depends_on:
+      - backend
+
+  # 🤖 FastAPI Microservice
+  ai-service:
+    build: ./AI
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./AI:/app
+    environment:
+      - OLLAMA_HOST=http://host.docker.internal:11434
+    depends_on:
+      - redis
+
+  # ⚡ Redis Event Broker
+  redis:
+    image: redis:alpine
+    ports:
+      - "6380:6379"
