@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { X, BookOpen, ShoppingCart, Clock } from "lucide-react";
 import { createRequest, clearErrors, clearMessage } from "../store/slices/requestSlice"; 
 import { toast } from "react-toastify";
-import axios from 'axios';
+import api from "../api/api";
 
 const BookDetailsPopup = ({ book, onClose }) => {
   const dispatch = useDispatch();
@@ -32,7 +32,7 @@ const BookDetailsPopup = ({ book, onClose }) => {
               }
             ]
           };
-          const res = await axios.post(`${import.meta.env.VITE_API_BASE || ''}/api/v1/payment/create-checkout-session`, payload, { withCredentials: true });
+          const res = await api.post("/api/v1/payment/create-checkout-session", payload);
           if (res.data?.url) {
             window.location.href = res.data.url;
           } else {

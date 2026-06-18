@@ -1,5 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit";
-import axios from "axios";
+import api from "../../api/api";
 
 const borrowSlice = createSlice({
     name: "borrow",
@@ -67,8 +67,7 @@ const borrowSlice = createSlice({
 export const recordBorrowBook = (bookId, email) => async (dispatch) => {
     dispatch(borrowSlice.actions.recordBorrowRequest());
     try {
-        const { data } = await axios.post(`http://localhost:4000/api/v1/borrow/record-borrow-book/${bookId}`, { email }, {
-            withCredentials: true,
+        const { data } = await api.post(`/api/v1/borrow/record-borrow-book/${bookId}`, { email }, {
             headers: { "Content-Type": "application/json" }
         });
         dispatch(borrowSlice.actions.recordBorrowSuccess(data));
@@ -80,8 +79,7 @@ export const recordBorrowBook = (bookId, email) => async (dispatch) => {
 export const returnBorrowedBook = (bookId, email) => async (dispatch) => {
     dispatch(borrowSlice.actions.returnBookRequest());
     try {
-        const { data } = await axios.put(`http://localhost:4000/api/v1/borrow/return-borrowed-book/${bookId}`, { email }, {
-            withCredentials: true,
+        const { data } = await api.put(`/api/v1/borrow/return-borrowed-book/${bookId}`, { email }, {
             headers: { "Content-Type": "application/json" }
         });
         dispatch(borrowSlice.actions.returnBookSuccess(data));
@@ -93,9 +91,7 @@ export const returnBorrowedBook = (bookId, email) => async (dispatch) => {
 export const getAdminBorrowedBooks = () => async (dispatch) => {
     dispatch(borrowSlice.actions.getAdminBorrowsRequest());
     try {
-        const { data } = await axios.get("http://localhost:4000/api/v1/borrow/borrowed-books-by-users", {
-            withCredentials: true
-        });
+        const { data } = await api.get("/api/v1/borrow/borrowed-books-by-users");
         dispatch(borrowSlice.actions.getAdminBorrowsSuccess(data));
     } catch (error) {
         dispatch(borrowSlice.actions.getAdminBorrowsFailed(error.response?.data?.message || "Failed to fetch borrowed books"));

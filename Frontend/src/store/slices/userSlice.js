@@ -1,5 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit";
-import axios from "axios";
+import api from "../../api/api";
 
 const userSlice = createSlice({
     name: "users",
@@ -65,9 +65,7 @@ const userSlice = createSlice({
 export const getAllUsers = () => async (dispatch) => {
     dispatch(userSlice.actions.getAllUsersRequest());
     try {
-        const { data } = await axios.get("http://localhost:4000/api/v1/user/all", {
-            withCredentials: true
-        });
+        const { data } = await api.get("/api/v1/user/all");
         dispatch(userSlice.actions.getAllUsersSuccess(data));
     } catch (error) {
         dispatch(userSlice.actions.getAllUsersFailed(error.response?.data?.message || "Failed to fetch users"));
@@ -77,8 +75,7 @@ export const getAllUsers = () => async (dispatch) => {
 export const registerAdmin = (formData) => async (dispatch) => {
     dispatch(userSlice.actions.registerAdminRequest());
     try {
-        const { data } = await axios.post("http://localhost:4000/api/v1/user/register-admin", formData, {
-            withCredentials: true,
+        const { data } = await api.post("/api/v1/user/register-admin", formData, {
             headers: {
                 "Content-Type": "multipart/form-data", 
             }
@@ -93,7 +90,7 @@ export const registerAdmin = (formData) => async (dispatch) => {
 export const settleDues = (id, paymentData) => async (dispatch) => {
   dispatch(userSlice.actions.userActionRequest());
   try {
-    const { data } = await axios.put(`http://localhost:4000/api/v1/user/settle-dues/${id}`, paymentData, { withCredentials: true });
+    const { data } = await api.put(`/api/v1/user/settle-dues/${id}`, paymentData);
     // Note: We use data.message here because your backend sends { message: "Payment & Dues updated successfully." }
     dispatch(userSlice.actions.userActionSuccess(data.message)); 
   } catch (error) {

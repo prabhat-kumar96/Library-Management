@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useSelector } from "react-redux";
-import axios from "axios";
+import api from "../api/api";
 import { toast } from "react-toastify";
 import {
   Sparkles,
@@ -10,8 +10,6 @@ import {
   HelpCircle,
   ThumbsUp
 } from "lucide-react";
-
-const BACKEND_URL = "http://localhost:4000";
 
 const AILibrarian = () => {
   const { user } = useSelector((state) => state.auth);
@@ -55,7 +53,7 @@ const AILibrarian = () => {
 
   const fetchInitialRecommendations = async () => {
     try {
-      const res = await axios.post(`${BACKEND_URL}/api/user/recommendations`, {}, { withCredentials: true });
+      const res = await api.post("/api/user/recommendations", {});
       if (res.data.success && res.data.recommendation) {
         setRecommendationMarkdown(res.data.recommendation);
         setRecommendedBooks(res.data.recommended_books || []);
@@ -72,12 +70,11 @@ const AILibrarian = () => {
 
     setIsGeneratingRecs(true); // Lock the gate immediately
     try {
-      const res = await axios.post(
-        `${BACKEND_URL}/api/user/recommendations`,
+      const res = await api.post(
+        "/api/user/recommendations",
         {},
         {
-          withCredentials: true,
-          // FIX 2: Set frontend timeout higher than backend dual-fallback processing time
+          // FIX 2: Set frontend timeout higher than dual-fallback processing time
           // This prevents Axios from silently duplicating the request when it gets impatient
           timeout: 30000
         }
@@ -104,10 +101,9 @@ const AILibrarian = () => {
     setIsSendingChat(true);
 
     try {
-      const res = await axios.post(
-        `${BACKEND_URL}/api/ai/ask`,
-        { question: text },
-        { withCredentials: true }
+      const res = await api.post(
+        "/api/ai/ask",
+        { question: text }
       );
       if (res.data.success) {
         setChatMessages(prev => [
@@ -140,10 +136,9 @@ const AILibrarian = () => {
       return;
     }
     try {
-      const res = await axios.post(
-        `${BACKEND_URL}/api/v1/borrow/record-borrow-book/${bookId}`,
-        { email: user.email },
-        { withCredentials: true }
+      const res = await api.post(
+        `/api/v1/borrow/record-borrow-book/${bookId}`,
+        { email: user.email }
       );
       if (res.data.success) {
         toast.success(`Successfully checked out: ${title}!`);

@@ -6,7 +6,7 @@ import ErrorHandeler from "../middlewares/errorMiddlewares.js";
 import axios from "axios";
 import mongoose from "mongoose";
 
-const FASTAPI_URL = "http://localhost:8000";
+const FASTAPI_URL = process.env.FASTAPI_URL || "http://localhost:8000";
 
 // Helper to map RAG book_id back to Mongo Book
 const resolveBookFromRagId = async (ragId) => {

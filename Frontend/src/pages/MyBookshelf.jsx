@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import axios from "axios";
+import api from "../api/api";
 import { toast } from "react-toastify";
 import { 
   BookOpen, 
@@ -16,7 +16,7 @@ import {
 } from "lucide-react";
 import { getUser } from "../store/slices/authSlice";
 
-const BACKEND_URL = "http://localhost:4000";
+
 
 const MyBookshelf = () => {
   const dispatch = useDispatch();
@@ -44,7 +44,7 @@ const MyBookshelf = () => {
   const fetchBookshelves = async () => {
     setLoadingShelves(true);
     try {
-      const res = await axios.get(`${BACKEND_URL}/api/user/shelves`, { withCredentials: true });
+      const res = await api.get("/api/user/shelves");
       if (res.data.success) {
         setCurrentlyReading(res.data.currently_reading || []);
         setWantToRead(res.data.want_to_read || []);
@@ -80,10 +80,9 @@ const MyBookshelf = () => {
   const saveGenres = async (updatedList) => {
     setIsUpdatingGenres(true);
     try {
-      const res = await axios.put(
-        `${BACKEND_URL}/api/user/preferences`, 
-        { favorite_genres: updatedList }, 
-        { withCredentials: true }
+      const res = await api.put(
+        "/api/user/preferences", 
+        { favorite_genres: updatedList }
       );
       if (res.data.success) {
         setFavoriteGenres(updatedList);
@@ -102,10 +101,9 @@ const MyBookshelf = () => {
   // 3. Move book to different shelf (WANT_TO_READ, CURRENTLY_READING, COMPLETED)
   const handleMoveShelf = async (bookId, title, targetStatus) => {
     try {
-      const res = await axios.post(
-        `${BACKEND_URL}/api/user/shelf`, 
-        { bookId, status: targetStatus }, 
-        { withCredentials: true }
+      const res = await api.post(
+        "/api/user/shelf", 
+        { bookId, status: targetStatus }
       );
       if (res.data.success) {
         toast.success(`Moved "${title}" on your bookshelf!`);

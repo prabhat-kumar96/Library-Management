@@ -1,5 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit";
-import axios from "axios";
+import api from "../../api/api";
 
 const requestSlice = createSlice({
   name: "requests",
@@ -41,10 +41,9 @@ const requestSlice = createSlice({
 export const createRequest = (bookId, requestType) => async (dispatch) => { 
   dispatch(requestSlice.actions.requestActionRequest());
   try {
-    const { data } = await axios.post(
-      `http://localhost:4000/api/v1/request/send/${bookId}`, 
-      { requestType }, // 👈 Sent in req.body
-      { withCredentials: true }
+    const { data } = await api.post(
+      `/api/v1/request/send/${bookId}`, 
+      { requestType } // 👈 Sent in req.body
     );
     dispatch(requestSlice.actions.requestActionSuccess(data.message));
   } catch (error) {
@@ -55,7 +54,7 @@ export const createRequest = (bookId, requestType) => async (dispatch) => {
 export const getAllRequests = () => async (dispatch) => {
   dispatch(requestSlice.actions.requestActionRequest());
   try {
-    const { data } = await axios.get("http://localhost:4000/api/v1/request/all", { withCredentials: true });
+    const { data } = await api.get("/api/v1/request/all");
     dispatch(requestSlice.actions.getAllRequestsSuccess(data.requests));
   } catch (error) {
     dispatch(requestSlice.actions.requestActionFailed(error.response?.data?.message || "An error occurred"));
@@ -65,10 +64,9 @@ export const getAllRequests = () => async (dispatch) => {
 export const manageRequest = (requestId, action) => async (dispatch) => {
   dispatch(requestSlice.actions.requestActionRequest());
   try {
-    const { data } = await axios.put(
-      `http://localhost:4000/api/v1/request/manage/${requestId}`, 
-      { action }, 
-      { withCredentials: true }
+    const { data } = await api.put(
+      `/api/v1/request/manage/${requestId}`, 
+      { action }
     );
     dispatch(requestSlice.actions.requestActionSuccess(data.message));
   } catch (error) {

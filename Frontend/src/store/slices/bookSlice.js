@@ -1,5 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit";
-import axios from "axios";
+import api from "../../api/api";
 
 const bookSlice = createSlice({
   name: "books",
@@ -91,9 +91,7 @@ const bookSlice = createSlice({
 export const getAllBooks = () => async (dispatch) => {
   dispatch(bookSlice.actions.getAllBooksRequest());
   try {
-    const { data } = await axios.get("http://localhost:4000/api/v1/book/all", {
-      withCredentials: true,
-    });
+    const { data } = await api.get("/api/v1/book/all");
     dispatch(bookSlice.actions.getAllBooksSuccess(data));
   } catch (error) {
     dispatch(
@@ -106,11 +104,10 @@ export const getAllBooks = () => async (dispatch) => {
 export const addBook = (bookData) => async (dispatch) => {
   dispatch(bookSlice.actions.addBookRequest());
   try {
-    const { data } = await axios.post(
-      "http://localhost:4000/api/v1/book/admin/add",
+    const { data } = await api.post(
+      "/api/v1/book/admin/add",
       bookData, // This is now FormData, not JSON!
       {
-        withCredentials: true,
         headers: {
           "Content-Type": "multipart/form-data", // 👈 Crucial change!
         },
@@ -125,8 +122,7 @@ export const addBook = (bookData) => async (dispatch) => {
 export const updateBook = (id, bookData) => async (dispatch) => {
     dispatch(bookSlice.actions.updateBookRequest());
     try {
-        const { data } = await axios.put(`http://localhost:4000/api/v1/book/update/${id}`, bookData, {
-            withCredentials: true,
+        const { data } = await api.put(`/api/v1/book/update/${id}`, bookData, {
             headers: { "Content-Type": "multipart/form-data" } // 👈 Crucial change!
         });
         dispatch(bookSlice.actions.updateBookSuccess(data));
@@ -137,11 +133,8 @@ export const updateBook = (id, bookData) => async (dispatch) => {
 export const deleteBook = (id) => async (dispatch) => {
   dispatch(bookSlice.actions.deleteBookRequest());
   try {
-    const { data } = await axios.delete(
-      `http://localhost:4000/api/v1/book/delete/${id}`,
-      {
-        withCredentials: true,
-      },
+    const { data } = await api.delete(
+      `/api/v1/book/delete/${id}`
     );
     dispatch(bookSlice.actions.deleteBookSuccess(data));
   } catch (error) {
@@ -160,9 +153,8 @@ export const searchBooksWithAI = (query) => async (dispatch) => {
   // 👇 1. Use the existing getAllBooksRequest reducer
   dispatch(bookSlice.actions.getAllBooksRequest()); 
   try {
-    const { data } = await axios.get(
-      `http://localhost:4000/api/v1/book/semantic-search?query=${query}`,
-      { withCredentials: true }
+    const { data } = await api.get(
+      `/api/v1/book/semantic-search?query=${query}`
     );
     // 👇 2. Use the existing getAllBooksSuccess reducer. 
     // We pass 'data' directly because your backend already returns { success: true, books: [...] }
