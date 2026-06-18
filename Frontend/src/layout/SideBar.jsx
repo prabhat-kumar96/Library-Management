@@ -35,7 +35,7 @@ const SideBar = ({ isSideBarOpen, setIsSideBarOpen, selectedComponent, setSelect
   // Pull popup states directly from Redux
   const { isAddNewAdminPopupOpen, isSettingPopupOpen } = useSelector((state) => state.popup);
 
-  const { loading, error, message, isAuthenticated, user } = useSelector(
+  const { loading, logoutLoading, error, message, isAuthenticated, user } = useSelector(
     (state) => state.auth
   );
 
@@ -216,10 +216,10 @@ const SideBar = ({ isSideBarOpen, setIsSideBarOpen, selectedComponent, setSelect
           <button
             className="w-full flex items-center justify-center space-x-3 px-4 py-3 bg-red-600 hover:bg-red-700 text-white rounded-lg font-medium transition-colors duration-200 disabled:opacity-50"
             onClick={handleLogout}
-            disabled={loading}
+            disabled={logoutLoading}
           >
             <LogOut className="w-5 h-5" /> 
-            <span>{loading ? "Logging out..." : "Log Out"}</span>
+            <span>{logoutLoading ? "Logging out..." : "Log Out"}</span>
           </button>
         </div>
       </aside>

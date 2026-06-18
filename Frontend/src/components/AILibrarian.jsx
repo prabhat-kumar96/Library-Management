@@ -51,9 +51,10 @@ const AILibrarian = () => {
     chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
 
-  const fetchInitialRecommendations = async () => {
+ const fetchInitialRecommendations = async () => {
     try {
-      const res = await api.post("/api/user/recommendations", {});
+      // FIX: Pass { initialLoad: true } instead of an empty object {}
+      const res = await api.post("/api/user/recommendations", { initialLoad: true });
       if (res.data.success && res.data.recommendation) {
         setRecommendationMarkdown(res.data.recommendation);
         setRecommendedBooks(res.data.recommended_books || []);

@@ -86,9 +86,17 @@ export const addBook = catchAsyncErrors(async (req, res, next) => {
 
   if (hasPdf) {
     const pdf = req.files.bookPdf;
+    const extension = pdf.name ? pdf.name.split('.').pop() : 'pdf';
+    const baseName = pdf.name ? pdf.name.substring(0, pdf.name.lastIndexOf('.')).replace(/[^a-zA-Z0-9-_]/g, '_') : 'book';
+    const sanitizedFilename = `${Date.now()}-${baseName}.${extension}`;
+
     const cloudinaryResponse = await cloudinary.v2.uploader.upload(
       pdf.tempFilePath,
-      { folder: "LIBRARY_BOOK_PDFS", resource_type: "raw" }
+      { 
+        folder: "LIBRARY_BOOK_PDFS", 
+        resource_type: "raw",
+        public_id: sanitizedFilename
+      }
     );
     bookData.bookPdf = {
       public_id: cloudinaryResponse.public_id,
@@ -173,9 +181,17 @@ export const updateBook = catchAsyncErrors(async (req, res, next) => {
 
   if (req.files && req.files.bookPdf) {
     const pdf = req.files.bookPdf;
+    const extension = pdf.name ? pdf.name.split('.').pop() : 'pdf';
+    const baseName = pdf.name ? pdf.name.substring(0, pdf.name.lastIndexOf('.')).replace(/[^a-zA-Z0-9-_]/g, '_') : 'book';
+    const sanitizedFilename = `${Date.now()}-${baseName}.${extension}`;
+
     const cloudinaryResponse = await cloudinary.v2.uploader.upload(
       pdf.tempFilePath,
-      { folder: "LIBRARY_BOOK_PDFS", resource_type: "raw" }
+      { 
+        folder: "LIBRARY_BOOK_PDFS", 
+        resource_type: "raw",
+        public_id: sanitizedFilename
+      }
     );
     updateData.bookPdf = {
       public_id: cloudinaryResponse.public_id,

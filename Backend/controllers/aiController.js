@@ -211,6 +211,14 @@ export const tagBookOnShelf = catchAsyncErrors(async (req, res, next) => {
     return next(new ErrorHandeler("Please provide bookId and status.", 400));
   }
 
+  if (status === "REMOVE") {
+    await UserShelf.findOneAndDelete({ user: userId, book: bookId });
+    return res.status(200).json({
+      success: true,
+      message: "Book successfully removed from shelf."
+    });
+  }
+
   const book = await Book.findById(bookId);
   if (!book) {
     return next(new ErrorHandeler("Book not found.", 404));

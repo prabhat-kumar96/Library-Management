@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { BookMarked, Clock, CheckCircle, AlertCircle, Calendar, BookOpen, ShoppingBag, Library } from "lucide-react";
+import { BookMarked, Clock, CheckCircle, AlertCircle, Calendar, BookOpen, ShoppingBag, Library, Download } from "lucide-react";
 import { toast } from "react-toastify";
 
 // Import your existing ReadBookPopup and the getAllBooks action
@@ -35,6 +35,26 @@ const MyBorrowedBooks = () => {
   const sortedPurchasedBooks = [...purchasedBooks].sort((a, b) => {
     return new Date(b.purchaseDate) - new Date(a.purchaseDate);
   });
+
+  const handleDownload = async (url, title) => {
+    const filename = `${title}.pdf`;
+    try {
+      const response = await fetch(url);
+      const blob = await response.blob();
+      const blobUrl = window.URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = blobUrl;
+      link.download = filename;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(blobUrl);
+    } catch (error) {
+      console.error("Download failed:", error);
+      const fallbackUrl = url.includes("cloudinary.com") ? url.replace("/upload/", "/upload/fl_attachment/") : url;
+      window.open(fallbackUrl, "_blank");
+    }
+  };
 
   const getStatusBadge = (returned, dueDate) => {
     if (returned) {
@@ -191,7 +211,7 @@ const MyBorrowedBooks = () => {
                   </div>
                 </div>
 
-                <div className="flex flex-col items-end justify-center">
+                <div className="flex flex-col sm:flex-row items-center gap-3 justify-center">
                   <button 
                     onClick={() => {
                       // Bulletproof PDF retrieval
@@ -208,10 +228,28 @@ const MyBorrowedBooks = () => {
                         toast.warning("Still loading book data... Please try again in a moment.");
                       }
                     }}
-                    className="px-6 py-2.5 bg-gray-900 text-white text-sm font-bold uppercase tracking-wide rounded-xl hover:bg-black active:scale-95 transition-all flex items-center gap-2 shadow-lg"
+                    className="px-5 py-2.5 bg-gray-900 text-white text-xs font-bold uppercase tracking-wide rounded-xl hover:bg-black active:scale-95 transition-all flex items-center gap-2 shadow-lg"
                   >
-                    <BookOpen size={16} /> Read E-Book
+                    <BookOpen size={14} /> Read E-Book
                   </button>
+
+                  {(() => {
+                    const fullBookData = books?.find((b) => 
+                      String(b._id) === String(record.bookId) || 
+                      b.title?.toLowerCase() === record.bookTitle?.toLowerCase()
+                    );
+                    if (fullBookData && fullBookData.bookPdf?.url) {
+                      return (
+                        <button
+                          onClick={() => handleDownload(fullBookData.bookPdf.url, record.bookTitle)}
+                          className="px-5 py-2.5 bg-green-600 hover:bg-green-700 text-white text-xs font-bold uppercase tracking-wide rounded-xl active:scale-95 transition-all flex items-center gap-2 shadow-lg"
+                        >
+                          <Download size={14} /> Download PDF
+                        </button>
+                      );
+                    }
+                    return null;
+                  })()}
                 </div>
               </div>
             ))

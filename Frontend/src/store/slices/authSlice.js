@@ -7,6 +7,7 @@ const authSlice = createSlice({
   name: "auth",
   initialState: {
     loading: false,
+    logoutLoading: false,
     error: null,
     message: null,
     user: null,
@@ -57,18 +58,18 @@ const authSlice = createSlice({
       state.error = action.payload;
     },
     logoutRequest(state) {
-      state.loading = true;
+      state.logoutLoading = true;
       state.error = null;
       state.message = null;
     },
     logoutSuccess(state, action) {
-      state.loading = false;
+      state.logoutLoading = false;
       state.message = action.payload;
       state.isAuthenticated = false;
       state.user = null;
     },
     logoutFailed(state, action) {
-      state.loading = false;
+      state.logoutLoading = false;
       state.error = action.payload;
       state.message = null;
     },
@@ -160,7 +161,7 @@ export const register = (data) => async (dispatch) => {
       dispatch(authSlice.actions.registerSuccess(res.data));
     })
     .catch((err) => {
-      dispatch(authSlice.actions.registerFailed(err.response.data.message));
+      dispatch(authSlice.actions.registerFailed(err.response?.data?.message || err.message || "Registration failed. Please try again."));
     });
 };
 
@@ -181,7 +182,7 @@ export const otpVerification = (email, otp) => async (dispatch) => {
     })
     .catch((err) => {
       dispatch(
-        authSlice.actions.otpVerificationFailed(err.response.data.message),
+        authSlice.actions.otpVerificationFailed(err.response?.data?.message || err.message || "OTP verification failed. Please try again."),
       );
     });
 };
@@ -199,7 +200,7 @@ export const login = (data) => async (dispatch) => {
       dispatch(authSlice.actions.loginSuccess(res.data));
     })
     .catch((err) => {
-      dispatch(authSlice.actions.loginFailed(err.response.data.message));
+      dispatch(authSlice.actions.loginFailed(err.response?.data?.message || err.message || "Login failed. Please try again."));
     });
 };
 
@@ -211,7 +212,7 @@ export const logout = () => async (dispatch) => {
       dispatch(authSlice.actions.logoutSuccess(res.data.message));
     })
     .catch((err) => {
-      dispatch(authSlice.actions.logoutFailed(err.response.data.message));
+      dispatch(authSlice.actions.logoutFailed(err.response?.data?.message || err.message || "Logout failed. Please try again."));
     });
 };
 
@@ -223,7 +224,7 @@ export const getUser = () => async (dispatch) => {
       dispatch(authSlice.actions.getUserSuccess(res.data));
     })
     .catch((err) => {
-      dispatch(authSlice.actions.getUserFailed(err.response.data.message));
+      dispatch(authSlice.actions.getUserFailed(err.response?.data?.message || err.message || "Failed to fetch user."));
     });
 };
 
@@ -244,7 +245,7 @@ export const forgotPassword = (email) => async (dispatch) => {
     })
     .catch((err) => {
       dispatch(
-        authSlice.actions.forgotPasswordFailed(err.response.data.message),
+        authSlice.actions.forgotPasswordFailed(err.response?.data?.message || err.message || "Request failed. Please try again."),
       );
     });
 };
@@ -262,7 +263,7 @@ export const resetPassword = (data, token) => async (dispatch) => {
     })
     .catch((err) => {
       dispatch(
-        authSlice.actions.resetPasswordFailed(err.response.data.message),
+        authSlice.actions.resetPasswordFailed(err.response?.data?.message || err.message || "Password reset failed. Please try again."),
       );
     });
 };
@@ -280,7 +281,7 @@ export const updatePassword = (data) => async (dispatch) => {
     })
     .catch((err) => {
       dispatch(
-        authSlice.actions.updatePasswordFailed(err.response.data.message),
+        authSlice.actions.updatePasswordFailed(err.response?.data?.message || err.message || "Failed to update password. Please try again."),
       );
     });
 };

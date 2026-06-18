@@ -1,9 +1,33 @@
 import React from "react";
 import { createPortal } from "react-dom";
-import { X, BookOpen, AlertCircle } from "lucide-react";
+import { X, BookOpen, AlertCircle, Download } from "lucide-react";
 
 const ReadBookPopup = ({ isOpen, onClose, book }) => {
   if (!isOpen || !book) return null;
+
+  const handleDownload = async (e) => {
+    e.preventDefault();
+    const url = book.bookPdf?.url;
+    if (!url) return;
+    const filename = `${book.title}.pdf`;
+
+    try {
+      const response = await fetch(url);
+      const blob = await response.blob();
+      const blobUrl = window.URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = blobUrl;
+      link.download = filename;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(blobUrl);
+    } catch (error) {
+      console.error("Direct download failed, falling back to window.open:", error);
+      const fallbackUrl = url.includes("cloudinary.com") ? url.replace("/upload/", "/upload/fl_attachment/") : url;
+      window.open(fallbackUrl, "_blank");
+    }
+  };
 
   return createPortal(
     <div className="fixed inset-0 z-[99999] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 sm:p-8 animate-fadeIn">
@@ -21,12 +45,22 @@ const ReadBookPopup = ({ isOpen, onClose, book }) => {
             </div>
           </div>
           
-          <button 
-            onClick={onClose}
-            className="text-gray-400 hover:text-white hover:bg-white/10 p-2 rounded-full transition-colors"
-          >
-            <X size={24} />
-          </button>
+          <div className="flex items-center gap-3">
+            {book.bookPdf && book.bookPdf.url && (
+              <button
+                onClick={handleDownload}
+                className="bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs uppercase tracking-wider px-4 py-2 rounded-xl transition-all flex items-center gap-1.5 shadow-md mr-1"
+              >
+                <Download size={14} /> Download PDF
+              </button>
+            )}
+            <button 
+              onClick={onClose}
+              className="text-gray-400 hover:text-white hover:bg-white/10 p-2 rounded-full transition-colors"
+            >
+              <X size={24} />
+            </button>
+          </div>
         </div>
 
         {/* PDF Viewer Area */}
