@@ -2,7 +2,8 @@
 node_modules/
 
 # Ignore environment configuration
-config/
+config/*
+!config/stripe.js
 
 # Optional: Ignore dotenv files
 .env
