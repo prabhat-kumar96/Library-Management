@@ -1,10 +1,12 @@
-import express from 'express';
-import { config } from 'dotenv';
+import "./instrument.js"; // 👈 Always load this first line alone!
+import express from "express";
+import { config } from "dotenv";
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
 import { connectDB } from './database/db.js';
 import { errorMiddleware } from './middlewares/errorMiddlewares.js';
 import fileUpload from "express-fileupload";
+import * as Sentry from "@sentry/node";
 
 // Routers
 import authRouter from './routes/authRouter.js';
@@ -21,7 +23,7 @@ import { removeUnverifiedAccounts } from './services/removeUnverifiedAccounts.js
 
 import { stripeWebhookHandler } from './controllers/paymentController.js';
 
-config({path: './config/config.env'});
+config({ path: './config/config.env' });
 
 export const app = express();
 
@@ -38,12 +40,17 @@ app.post("/api/v1/payment/webhook", express.raw({ type: 'application/json' }), s
 app.post("/api/payments/webhook", express.raw({ type: 'application/json' }), stripeWebhookHandler);
 
 app.use(express.json());
-app.use(express.urlencoded({extended: true}));
+app.use(express.urlencoded({ extended: true }));
 
 app.use(fileUpload({
     useTempFiles: true,
     tempFileDir: "/tmp/",
 }));
+
+// Test route to verify Sentry is capturing exceptions
+app.get("/debug-sentry", function mainHandler(req, res) {
+  throw new Error("My first Sentry error!");
+});
 
 // API Routes
 app.use("/api/v1/auth", authRouter);
@@ -65,5 +72,8 @@ app.use("/api/v1/user", aiRouter);
 notifyUsers();
 removeUnverifiedAccounts();
 connectDB();
+
+// Sentry error handler must be registered before any other error middleware
+Sentry.setupExpressErrorHandler(app);
 
 app.use(errorMiddleware);

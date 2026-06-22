@@ -1,4 +1,5 @@
 import os
+import sentry_sdk
 import re
 import json
 import redis
@@ -10,8 +11,17 @@ from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from dotenv import load_dotenv
 
-# Load environmental variables from Backend config
-load_dotenv("../Backend/config/config.env")
+# Load environmental variables
+load_dotenv()  # Load local .env if it exists
+load_dotenv("../Backend/config/config.env")  # Fallback to Backend config
+
+# Initialize Sentry Python SDK
+sentry_sdk.init(
+    dsn=os.getenv("SENTRY_AI_DSN"),
+    traces_sample_rate=1.0,
+    profiles_sample_rate=1.0,
+    send_default_pii=True,
+)
 
 # LangChain and vector store imports
 from langchain_chroma import Chroma

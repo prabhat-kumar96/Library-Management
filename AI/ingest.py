@@ -6,8 +6,9 @@ from langchain_core.documents import Document
 from langchain_chroma import Chroma
 from langchain_community.embeddings import HuggingFaceEmbeddings
 
-# 1. Load Backend environment configurations for database access
-load_dotenv("../Backend/config/config.env")
+# 1. Load environment configurations
+load_dotenv()  # Load local .env first
+load_dotenv("../Backend/config/config.env")  # Fallback to Backend config
 
 # Retrieve the MongoDB URI from your configuration file
 # Note: Change "MONGO_URI" to match the exact variable name inside your config.env (e.g., DB_URI)

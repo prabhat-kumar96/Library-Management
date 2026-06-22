@@ -39,6 +39,7 @@ services:
       - ./AI:/app
     environment:
       - OLLAMA_HOST=http://host.docker.internal:11434
+      - SENTRY_AI_DSN=${SENTRY_AI_DSN}
     depends_on:
       - redis
 
