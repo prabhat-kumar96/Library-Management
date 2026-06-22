@@ -82,7 +82,7 @@ const bookSlice = createSlice({
     clearBookMessage(state) {
       state.message = null;
     },
-    
+
   },
 });
 
@@ -121,15 +121,15 @@ export const addBook = (bookData) => async (dispatch) => {
 };
 
 export const updateBook = (id, bookData) => async (dispatch) => {
-    dispatch(bookSlice.actions.updateBookRequest());
-    try {
-        const { data } = await api.put(`/api/v1/book/update/${id}`, bookData, {
-            headers: { "Content-Type": "multipart/form-data" } // 👈 Crucial change!
-        });
-        dispatch(bookSlice.actions.updateBookSuccess(data));
-    } catch (error) {
-        dispatch(bookSlice.actions.updateBookFailed(error.response?.data?.message || "Failed to update book"));
-    }
+  dispatch(bookSlice.actions.updateBookRequest());
+  try {
+    const { data } = await api.put(`/api/v1/book/update/${id}`, bookData, {
+      headers: { "Content-Type": "multipart/form-data" } // 👈 Crucial change!
+    });
+    dispatch(bookSlice.actions.updateBookSuccess(data));
+  } catch (error) {
+    dispatch(bookSlice.actions.updateBookFailed(error.response?.data?.message || "Failed to update book"));
+  }
 };
 export const deleteBook = (id) => async (dispatch) => {
   dispatch(bookSlice.actions.deleteBookRequest());
@@ -152,7 +152,7 @@ export const deleteBook = (id) => async (dispatch) => {
 // ==========================================
 export const searchBooksWithAI = (query) => async (dispatch) => {
   // 👇 1. Use the existing getAllBooksRequest reducer
-  dispatch(bookSlice.actions.getAllBooksRequest()); 
+  dispatch(bookSlice.actions.getAllBooksRequest());
   try {
     const { data } = await api.get(
       `/api/v1/book/semantic-search?query=${query}`
