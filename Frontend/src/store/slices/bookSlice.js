@@ -5,6 +5,7 @@ const bookSlice = createSlice({
   name: "books",
   initialState: {
     loading: false,
+    saveLoading: false,
     books: [],
     error: null,
     message: null,
@@ -27,16 +28,16 @@ const bookSlice = createSlice({
 
     // ADD NEW BOOK
     addBookRequest(state) {
-      state.loading = true;
+      state.saveLoading = true;
       state.error = null;
       state.message = null;
     },
     addBookSuccess(state, action) {
-      state.loading = false;
+      state.saveLoading = false;
       state.message = action.payload.message;
     },
     addBookFailed(state, action) {
-      state.loading = false;
+      state.saveLoading = false;
       state.error = action.payload;
     },
 
@@ -57,16 +58,16 @@ const bookSlice = createSlice({
     // UPDATE BOOK
 
     updateBookRequest(state) {
-      state.loading = true;
+      state.saveLoading = true;
       state.error = null;
       state.message = null;
     },
     updateBookSuccess(state, action) {
-      state.loading = false;
+      state.saveLoading = false;
       state.message = action.payload.message;
     },
     updateBookFailed(state, action) {
-      state.loading = false;
+      state.saveLoading = false;
       state.error = action.payload;
     },
 

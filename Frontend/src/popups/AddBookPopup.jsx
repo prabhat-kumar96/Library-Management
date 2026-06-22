@@ -7,7 +7,7 @@ import { addBook, updateBook, getAllBooks, clearBookErrors, clearBookMessage } f
 
 const AddBookPopup = ({ isOpen, onClose, bookToEdit }) => {
   const dispatch = useDispatch();
-  const { loading, error, message } = useSelector((state) => state.books);
+  const { saveLoading, error, message } = useSelector((state) => state.books);
 
   const [title, setTitle] = useState("");
   const [author, setAuthor] = useState("");
@@ -214,8 +214,8 @@ const AddBookPopup = ({ isOpen, onClose, bookToEdit }) => {
 
           <div className="pt-4 flex gap-3 justify-end border-t border-gray-100 mt-2">
             <button type="button" onClick={onClose} className="px-4 py-2 bg-gray-100 text-gray-700 hover:bg-gray-200 rounded-lg font-medium">Cancel</button>
-            <button type="submit" disabled={loading} className="px-6 py-2 text-white bg-blue-600 hover:bg-blue-700 rounded-lg disabled:opacity-70 font-medium">
-              {loading ? "Saving..." : (bookToEdit ? "Update Book" : "Add Book")}
+            <button type="submit" disabled={saveLoading} className="px-6 py-2 text-white bg-blue-600 hover:bg-blue-700 rounded-lg disabled:opacity-70 font-medium">
+              {saveLoading ? "Saving..." : (bookToEdit ? "Update Book" : "Add Book")}
             </button>
           </div>
         </form>
