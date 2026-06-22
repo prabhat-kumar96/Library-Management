@@ -25,7 +25,7 @@ sentry_sdk.init(
 
 # LangChain and vector store imports
 from langchain_chroma import Chroma
-from langchain_community.embeddings import HuggingFaceEmbeddings
+from langchain_community.embeddings import HuggingFaceInferenceAPIEmbeddings
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.messages import SystemMessage, HumanMessage
 
@@ -104,8 +104,15 @@ async def lifespan(app: FastAPI):
     print("=== 🚀 STARTING RAG MICROSERVICE ===")
     
     # 1. Initialize HuggingFace embeddings
-    print("Loading HuggingFace Embeddings model ('all-MiniLM-L6-v2')...")
-    embedding_model = HuggingFaceEmbeddings(model_name="all-MiniLM-L6-v2")
+    print("Loading HuggingFace Inference API Embeddings model ('sentence-transformers/all-MiniLM-L6-v2')...")
+    hf_token = os.getenv("HF_TOKEN") or os.getenv("HUGGINGFACE_API_KEY")
+    if not hf_token:
+        print("⚠️ Warning: HF_TOKEN / HUGGINGFACE_API_KEY not found in environment!")
+    embedding_model = HuggingFaceInferenceAPIEmbeddings(
+        api_key=hf_token,
+        model_name="sentence-transformers/all-MiniLM-L6-v2",
+        api_url="https://router.huggingface.co/hf-inference/models/sentence-transformers/all-MiniLM-L6-v2/pipeline/feature-extraction"
+    )
     global_context["embeddings"] = embedding_model
     
     # 2. Connect to the local persisted Chroma vector database

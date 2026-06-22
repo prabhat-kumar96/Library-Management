@@ -4,7 +4,7 @@ from pymongo import MongoClient
 from dotenv import load_dotenv
 from langchain_core.documents import Document
 from langchain_chroma import Chroma
-from langchain_community.embeddings import HuggingFaceEmbeddings
+from langchain_community.embeddings import HuggingFaceInferenceAPIEmbeddings
 
 # 1. Load environment configurations
 load_dotenv()  # Load local .env first
@@ -34,9 +34,16 @@ except Exception as e:
     print("Ensure MongoDB is running and check your variable names in config.env.")
     exit(1)
 
-# 3. Initialize the local embedding model
-print("Initializing Embedding Model...")
-embedding_model = HuggingFaceEmbeddings(model_name="all-MiniLM-L6-v2")
+# 3. Initialize the serverless embedding model
+print("Initializing HuggingFace Inference API Embedding Model...")
+hf_token = os.getenv("HF_TOKEN") or os.getenv("HUGGINGFACE_API_KEY")
+if not hf_token:
+    print("⚠️ Warning: HF_TOKEN / HUGGINGFACE_API_KEY not found in environment!")
+embedding_model = HuggingFaceInferenceAPIEmbeddings(
+    api_key=hf_token,
+    model_name="sentence-transformers/all-MiniLM-L6-v2",
+    api_url="https://router.huggingface.co/hf-inference/models/sentence-transformers/all-MiniLM-L6-v2/pipeline/feature-extraction"
+)
 
 # 4. Process Mongo Data into Vector Documents
 documents = []
