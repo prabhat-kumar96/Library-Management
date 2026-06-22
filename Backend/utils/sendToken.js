@@ -1,12 +1,14 @@
 export const sendToken = (user, statusCode, message, res) => {
     const token = user.getJWTToken();
 
-    res.status(statusCode).cookie("token", token, {
+    const options = {
         expires: new Date(Date.now() + process.env.COOKIE_EXPIRE * 24 * 60 * 60 * 1000),
         httpOnly: true,
-        sameSite: "lax", // optional but recommended
-        secure: false     // true in production (HTTPS)
-    }).json({
+        secure: true,      // 🔥 Required! Forces HTTPS link delivery
+        sameSite: 'none'   // 🔥 Required! Allows Vercel to securely pass the cookie to Render
+    };
+
+    res.status(statusCode).cookie("token", token, options).json({
         success: true,
         user,
         message,
