@@ -156,10 +156,16 @@ app = FastAPI(
     lifespan=lifespan
 )
 
+@app.get("/")
+@app.head("/")
+async def read_root():
+    return {"status": "healthy", "service": "RAG AI Microservice"}
+
 # 3. Configure Robust CORS Management
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["http://localhost:5173", "http://localhost:3000", "*"],
+
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
