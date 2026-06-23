@@ -237,7 +237,7 @@ def generate_llm_response(system_prompt: str, user_prompt: str) -> str:
             }
         }
         
-        response = requests.post(url, json=payload, headers={"Content-Type": "application/json"}, timeout=12)
+        response = requests.post(url, json=payload, headers={"Content-Type": "application/json"}, timeout=30)
         if response.status_code == 200:
             print("✅ Success: Response returned from Gemini API Fallback!")
             return response.json()["candidates"][0]["content"]["parts"][0]["text"]
