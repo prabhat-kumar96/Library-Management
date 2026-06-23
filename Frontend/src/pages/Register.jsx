@@ -64,6 +64,16 @@ const Register = () => {
   };
 
   useEffect(() => {
+    // 🧹 Clear errors when the component mounts
+    dispatch(resetAuthSlice()); 
+
+    return () => {
+      // 🧹 Clear errors when the component unmounts (navigating away)
+      dispatch(resetAuthSlice()); 
+    };
+  }, [dispatch]);
+
+  useEffect(() => {
     if (error) {
       toast.error(error);
       dispatch(resetAuthSlice());

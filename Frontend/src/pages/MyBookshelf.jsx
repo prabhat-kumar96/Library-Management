@@ -118,10 +118,9 @@ const MyBookshelf = () => {
 
   const handleRemoveFromShelf = async (bookId, title) => {
     try {
-      const res = await axios.post(
-        `${BACKEND_URL}/api/user/shelf`, 
-        { bookId, status: "REMOVE" }, 
-        { withCredentials: true }
+      const res = await api.post(
+        "/api/user/shelf", 
+        { bookId, status: "REMOVE" }
       );
       if (res.data.success) {
         toast.success(`Removed "${title}" from shelves!`);

@@ -38,9 +38,7 @@ const BookManagement = () => {
 
   const handleDelete = (id) => {
     if (window.confirm("Are you sure you want to delete this book from the database? This action cannot be undone.")) {
-      dispatch(deleteBook(id)).then(() => {
-        dispatch(getAllBooks());
-      });
+      dispatch(deleteBook(id));
     }
   };
 

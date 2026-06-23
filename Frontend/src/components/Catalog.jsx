@@ -4,6 +4,7 @@ import { Search, Library, BookOpen } from "lucide-react";
 import { getAllBooks, setSearchQuery } from "../store/slices/bookSlice"; 
 import BookDetailsPopup from "../popups/BookDetailsPopup";
 import { searchBooksWithAI } from "../store/slices/bookSlice";
+import { toast } from "react-toastify";
 
 const Catalog = () => {
   const dispatch = useDispatch();
