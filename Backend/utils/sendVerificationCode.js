@@ -5,7 +5,7 @@ import { sendEmail } from "./sendEmail.js";
 export async function sendVerificationCode(verificationCode,email,res){
     try {
        const message = generateVerificationOtpEmailTemplate(verificationCode);
-       sendEmail({
+       await sendEmail({
         email: email,
         subject: "verification code (Bookworm Library management system)",
         message,

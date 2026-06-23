@@ -25,8 +25,8 @@ export const createBookRequest = catchAsyncErrors(async (req, res, next) => {
         return next(new ErrorHandeler("Book is currently out of stock.", 400));
     }
 
-    // 🛑 1. PENDING REQUEST CHECK (Applies to BOTH Rent and Purchase)
-    // Prevents spamming the admin with multiple identical pending requests
+    // 🛑 1. PENDING REQUEST CHECK (Applies per-requestType)
+    // A user can only have at most one pending request of a specific type for a book
     const pendingRequest = await Request.findOne({
         "user.id": user._id,
         "book.id": bookId,
@@ -35,10 +35,10 @@ export const createBookRequest = catchAsyncErrors(async (req, res, next) => {
     });
 
     if (pendingRequest) {
-        return next(new ErrorHandeler(`You already have a pending ${requestType} request for this book.`, 400));
+        return next(new ErrorHandeler(`You already have a pending ${requestType === 'Borrow' ? 'Rent' : 'Purchase'} request for this book.`, 400));
     }
 
-    // 🛑 2. STRICT RENTAL CHECK (Applies ONLY to Rent)
+    // 🛑 2. STRICT RENTAL CHECK (Applies ONLY to Rent/Borrow requests)
     // Prevent user from renting a book they currently have at home
     if (requestType === "Borrow") {
         const alreadyRented = user.borrowedBooks.some(
@@ -48,7 +48,7 @@ export const createBookRequest = catchAsyncErrors(async (req, res, next) => {
             return next(new ErrorHandeler("You are currently renting this physical book. Please return it before renting again.", 400));
         }
     }
-    // Notice: There is no check here for "Purchase". They can buy as many copies as they want!
+    // Notice: There is no check here for "Purchase". They can buy as many copies/make as many purchase requests as they want!
 
     // Determine the agreed price based on the request type
     const priceAgreed = requestType === "Borrow" ? book.rentPrice : book.purchasePrice;
@@ -65,9 +65,13 @@ export const createBookRequest = catchAsyncErrors(async (req, res, next) => {
     });
 });
 
-// @desc    Admin: Get all requests
+// @desc    Admin: Get all requests (or User: Get own requests)
 export const getAllBorrowRequests = catchAsyncErrors(async (req, res, next) => {
-    const requests = await Request.find().sort({ createdAt: -1 });
+    let query = {};
+    if (req.user.role !== "Admin") {
+        query = { "user.id": req.user._id };
+    }
+    const requests = await Request.find(query).sort({ createdAt: -1 });
     res.status(200).json({
         success: true,
         requests,
