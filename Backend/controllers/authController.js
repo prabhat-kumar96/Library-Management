@@ -13,15 +13,27 @@ import { getSystemErrorMap } from "util";
 
 export const register = catchAsyncErrors(async(req,res , next ) => {
     try {
-        const {name, email, password, genres, favorite_genres} = req.body;
+        const {name ,email, password, favorite_genres} = req.body;
         if(!name || !email || !password){
             return next(new ErrorHandeler("Please enter all fields.", 400));
         }
-        const isRegistered = await User.findOne({email});
+        const isRegistered = await User.findOne({email, accountVerified: true});
         if (isRegistered){
             return next(new ErrorHandeler("User already exists.",400));
         }
 
+        const registerationAttemptsByUser = await User.find({
+            email,
+            accountVerified: false,
+        });
+        if(registerationAttemptsByUser.length >= 5){
+            return next(
+                new ErrorHandeler(
+                    "You have exceeded the number of registration attempts. Please contact support.."
+                    ,400
+                )
+            );
+        }
         if(password.length < 8 || password.length > 16){
             return next(
                 new ErrorHandeler("Password must be between 8 and 16 characters.",400)
@@ -41,11 +53,11 @@ export const register = catchAsyncErrors(async(req,res , next ) => {
             name,
             email,
             password: hashedPassword,
-            favorite_genres: genres || favorite_genres || [],
-            accountVerified: true
-        });
-
-        sendToken(user, 201, "User registered successfully.", res);
+            favorite_genres: favorite_genres || []
+        })
+        const verificationCode = await user.generateVerificationCode();
+        await user.save();
+        sendVerificationCode(verificationCode, email , res);
     } catch (error) {
         next(error)
     }

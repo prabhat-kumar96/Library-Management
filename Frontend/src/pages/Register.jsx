@@ -71,7 +71,8 @@ const Register = () => {
     if (message) {
       toast.success(message);
       dispatch(resetAuthSlice());
-      navigate("/");
+      // Backend generates OTP, so we redirect to OTP page
+      navigate(`/otp-verification/${email}`);
     }
     if (isAuthenticated) {
       navigate("/");
