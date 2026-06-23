@@ -6,6 +6,7 @@ import {
 } from "react-icons/fa";
 import { setSearchQuery } from "../store/slices/bookSlice";
 import ProfileModal from "../popups/ProfileModal";
+import SettleDuesModal from "../popups/SettleDuesModal";
 
 const Header = ({ setIsSideBarOpen }) => {
   const dispatch = useDispatch();
@@ -16,6 +17,7 @@ const Header = ({ setIsSideBarOpen }) => {
 
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
+  const [isSettleDuesOpen, setIsSettleDuesOpen] = useState(false);
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -58,9 +60,15 @@ const Header = ({ setIsSideBarOpen }) => {
         
         {/* Wallet Badge */}
         {user?.role !== "Admin" && (
-          <div className={`flex items-center gap-2 px-3 py-1.5 rounded-lg border transition-all duration-300 ${
-            totalDue > 0 ? 'bg-red-50 border-red-200 text-red-700 font-bold' : 'bg-green-50 border-green-200 text-green-700 font-bold'
-          }`}>
+          <div 
+            onClick={() => totalDue > 0 && setIsSettleDuesOpen(true)}
+            className={`flex items-center gap-2 px-3 py-1.5 rounded-lg border transition-all duration-300 ${
+              totalDue > 0 
+                ? 'bg-red-50 border-red-200 text-red-700 font-bold cursor-pointer hover:bg-red-100 hover:scale-105 active:scale-95' 
+                : 'bg-green-50 border-green-200 text-green-700 font-bold'
+            }`}
+            title={totalDue > 0 ? "Click to pay outstanding fine" : "No outstanding fine"}
+          >
             <FaWallet className={totalDue > 0 ? 'animate-pulse' : ''} />
             <span className="text-sm">₹{totalDue}</span>
           </div>
@@ -114,6 +122,7 @@ const Header = ({ setIsSideBarOpen }) => {
       </div>
 
       <ProfileModal isOpen={isProfileModalOpen} onClose={() => setIsProfileModalOpen(false)} user={user} />
+      <SettleDuesModal isOpen={isSettleDuesOpen} onClose={() => setIsSettleDuesOpen(false)} totalDue={totalDue} userEmail={user?.email} />
     </header>
   );
 };
