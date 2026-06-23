@@ -116,13 +116,21 @@ export const stripeWebhookHandler = async (req, res) => {
       if (userEmail && items.length > 0) {
         const user = await User.findOne({ email: userEmail });
         if (user) {
-          const purchasesToAdd = items
-            .filter(i => i.bookId)
-            .map(i => ({ bookId: i.bookId, bookTitle: i.title || 'E-Book', purchaseDate: new Date() }));
-
-          if (purchasesToAdd.length > 0) {
-            user.purchasedBooks = user.purchasedBooks.concat(purchasesToAdd);
+          const finePaymentItem = items.find(i => i.isFinePayment);
+          if (finePaymentItem) {
+            const paidAmount = Number(finePaymentItem.amount || 0) / 100;
+            user.totalFinesDue = Math.max(0, user.totalFinesDue - paidAmount);
             await user.save({ validateModifiedOnly: true });
+            console.log(`[Stripe Webhook] Successfully settled ₹${paidAmount} of dues for user: ${user.email}`);
+          } else {
+            const purchasesToAdd = items
+              .filter(i => i.bookId)
+              .map(i => ({ bookId: i.bookId, bookTitle: i.title || 'E-Book', purchaseDate: new Date() }));
+
+            if (purchasesToAdd.length > 0) {
+              user.purchasedBooks = user.purchasedBooks.concat(purchasesToAdd);
+              await user.save({ validateModifiedOnly: true });
+            }
           }
         }
       }
