@@ -18,6 +18,11 @@ const SettleDuesModal = ({ isOpen, onClose, totalDue, userEmail }) => {
       return;
     }
 
+    if (payAmount < 50) {
+      toast.error("Minimum payment amount is ₹50 due to Stripe transaction limits");
+      return;
+    }
+
     if (payAmount > totalDue) {
       toast.error(`Amount cannot exceed outstanding dues of ₹${totalDue}`);
       return;

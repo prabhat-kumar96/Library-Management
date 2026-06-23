@@ -1,10 +1,9 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { X, BookOpen, ShoppingCart, Clock, ChevronDown } from "lucide-react";
-import { createRequest, clearErrors, clearMessage } from "../store/slices/requestSlice"; 
+import { createRequest, getAllRequests, clearErrors, clearMessage } from "../store/slices/requestSlice"; 
 import { toast } from "react-toastify";
 import api from "../api/api";
-import PaymentModal from "../components/PaymentModal";
 import { getUser } from "../store/slices/authSlice";
 import { getAllBooks } from "../store/slices/bookSlice";
 
@@ -15,15 +14,17 @@ const BookDetailsPopup = ({ book, onClose }) => {
   // 👈 Added `requests` to the destructuring to check for pending status
   const { loading, error, message, requests } = useSelector((state) => state.requests); 
 
-  const [paymentOpen, setPaymentOpen] = useState(false);
-  const [paymentType, setPaymentType] = useState("");
+  useEffect(() => {
+    if (user) {
+      dispatch(getAllRequests());
+    }
+  }, [dispatch, user]);
 
   const handleRequest = (type) => {
     if (!user) {
-      return toast.error("Please login to proceed to checkout");
+      return toast.error("Please login to proceed");
     }
-    setPaymentType(type);
-    setPaymentOpen(true);
+    dispatch(createRequest(book._id, type));
   };
 
   const handleAddBookToShelf = async (shelfStatus) => {
@@ -49,9 +50,13 @@ const BookDetailsPopup = ({ book, onClose }) => {
     if (message) {
       toast.success(message);
       dispatch(clearMessage());
+      // Refresh requests to update pending badge immediately
+      if (user) {
+        dispatch(getAllRequests());
+      }
       onClose(); 
     }
-  }, [dispatch, error, message, onClose]);
+  }, [dispatch, error, message, onClose, user]);
 
   if (!book) return null;
 
@@ -186,24 +191,6 @@ const BookDetailsPopup = ({ book, onClose }) => {
           </div>
         </div>
       </div>
-      <PaymentModal
-        isOpen={paymentOpen}
-        onClose={() => setPaymentOpen(false)}
-        book={book}
-        type={paymentType}
-        onSuccess={() => {
-          dispatch(getUser()); // Refresh user profile (purchasedBooks and borrowedBooks arrays)
-          dispatch(getAllBooks()); // Immediate refresh for catalog state
-          
-          // Delayed refresh to handle Stripe asynchronous Webhook processing time
-          setTimeout(() => {
-            dispatch(getAllBooks());
-            dispatch(getUser());
-          }, 1500);
-
-          onClose(); // Close the details popup
-        }}
-      />
     </div>
   );
 };
