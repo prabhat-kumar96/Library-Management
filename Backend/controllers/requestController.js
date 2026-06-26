@@ -21,6 +21,13 @@ export const createBookRequest = catchAsyncErrors(async (req, res, next) => {
     const book = await Book.findById(bookId);
     if (!book) return next(new ErrorHandeler("Book not found.", 404));
 
+    // 🛑 0. DEBT LIMIT CHECK (Applies to both Borrow and Purchase requests)
+    const maxDebtLimit = Number(process.env.MAX_DEBT_LIMIT) || 1000;
+    const currentDebt = Number(user.totalFinesDue || 0);
+    if (currentDebt >= maxDebtLimit) {
+        return next(new ErrorHandeler(`Your outstanding dues (₹${currentDebt}) exceed the allowed limit of ₹${maxDebtLimit}. Please settle your dues via your wallet before requesting new books.`, 400));
+    }
+
     if (book.quantity < 1) {
         return next(new ErrorHandeler("Book is currently out of stock.", 400));
     }
