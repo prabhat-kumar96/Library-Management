@@ -25,7 +25,7 @@ export const createBookRequest = catchAsyncErrors(async (req, res, next) => {
     const maxDebtLimit = Number(process.env.MAX_DEBT_LIMIT) || 1000;
     const currentDebt = Number(user.totalFinesDue || 0);
     if (currentDebt >= maxDebtLimit) {
-        return next(new ErrorHandeler(`Your outstanding dues (₹${currentDebt}) exceed the allowed limit of ₹${maxDebtLimit}. Please settle your dues via your wallet before requesting new books.`, 400));
+        return next(new ErrorHandeler(`Your outstanding debt (₹${currentDebt}) is more than ₹${maxDebtLimit}. Please pay the debt first.`, 400));
     }
 
     if (book.quantity < 1) {
