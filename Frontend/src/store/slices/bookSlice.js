@@ -155,7 +155,7 @@ export const searchBooksWithAI = (query) => async (dispatch) => {
   dispatch(bookSlice.actions.getAllBooksRequest()); 
   try {
     const { data } = await api.get(
-      `/api/v1/book/semantic-search?query=${query}`
+      `/api/v1/book/rag-search?query=${query}`
     );
     // 👇 2. Use the existing getAllBooksSuccess reducer. 
     // We pass 'data' directly because your backend already returns { success: true, books: [...] }
