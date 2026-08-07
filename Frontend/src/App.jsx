@@ -20,6 +20,14 @@ const App = () => {
   const dispatch = useDispatch();
 
   useEffect(() => {
+    // 🌐 Wake up the FastAPI AI microservice (solves Render free-tier internal network cold-start bug)
+    const aiUrl = import.meta.env.VITE_AI_URL;
+    if (aiUrl) {
+      fetch(aiUrl)
+        .then(() => console.log("AI service wakeup ping successful"))
+        .catch(() => console.log("AI service wakeup ping initiated"));
+    }
+
     // These two ensure your Header shows the correct amount immediately
     dispatch(getUser());
     dispatch(getAllBooks());
